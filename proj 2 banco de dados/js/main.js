@@ -89,8 +89,17 @@ function valdiatingText() {
         let joinObject=joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart) 
         joinPart=joinObject.joinPart
         joinOnPart=joinObject.joinOnPart
+        joinPart=joinPart.filter((e,i) => { return joinPart.indexOf(e) === i})
+        joinOnPart=joinOnPart.filter((element,index) => { return  joinOnPart.indexOf(element) === index}) 
+        console.log('join array'); 
+        console.log(joinPart); 
+        console.log('joinOn array'); 
+        console.log(joinOnPart);
     }
 } 
+function removeDuplicates(arr) {
+    return [...new Set(arr)];
+}
 function joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart) {
         joinPart.push(currentJoinClause.trim().toUpperCase()) 
         let aux=currentJoinOnClause.trim().toUpperCase().indexOf(' JOIN ')
