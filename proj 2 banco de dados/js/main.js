@@ -28,7 +28,16 @@ function changingInput(value) {
     $('#mainInput').val(newVal + ' ') 
     $('#commands').hide()
     $('#mainInput').focus()
-} 
+}  
+function validation() { 
+    let test=valdiatingText() 
+    if(!test) { 
+        alert('ESTA  QUERY ESTA INVALIDA')
+    } 
+    else {
+        alert('deu bom!')
+    }
+}
 function valdiatingText() { 
     let userInput=$('#mainInput').val().trim().toUpperCase() 
     const regex =/^SELECT\s+(.+?)\s+FROM\s+(.+?)(\s+JOIN\s+(.+?)\s+ON\s+(.+?))?\s*(?:WHERE\s+(.+?))?$/i 
