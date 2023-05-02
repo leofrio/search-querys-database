@@ -23,7 +23,7 @@
 <div class="user-input">
     <div class="input-area"> 
         <label>SQL:</label>
-        <input id="mainInput" autocomplete="ON" placeholder="Digite uma consulta Sql Para ser avaliada" type="text" list="commands" />
+        <input id="mainInput" onInput="upper()" autocomplete="ON" placeholder="Digite uma consulta Sql Para ser avaliada" type="text" list="commands" />
         <ul style="display: none;" id="commands">
             <li>SELECT</li>
             <li>FROM</li>
@@ -36,7 +36,7 @@
         </ul>
     </div> 
     <div class="submitButton">
-        <button id="validateButton" class="button-26" role="button">Submit</button>
+        <button id="validateButton" class="button-26" onclick="valdiatingText()" role="button">Submit</button>
     </div>  
     <span id='validated-message'></span> 
 </div> 
