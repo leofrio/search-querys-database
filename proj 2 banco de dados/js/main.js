@@ -30,7 +30,7 @@ function changingInput(value) {
     $('#mainInput').focus()
 }  
 function validation() { 
-    let test=valdiatingText() 
+    let test=validatingText() 
     if(!test) { 
         alert('ESTA  QUERY ESTA INVALIDA')
     } 
@@ -38,7 +38,7 @@ function validation() {
         alert('deu bom!')
     }
 }
-function valdiatingText() { 
+function validatingText() { 
     let userInput=$('#mainInput').val().trim().toUpperCase() 
     const regex =/^SELECT\s+(.+?)\s+FROM\s+(.+?)(\s+JOIN\s+(.+?)\s+ON\s+(.+?))?\s*(?:WHERE\s+(.+?))?$/i 
     const match = userInput.match(regex); 
@@ -95,7 +95,8 @@ function valdiatingText() {
         console.log(joinPart); 
         console.log('joinOn array'); 
         console.log(joinOnPart);
-    }
+    } 
+    
 } 
 function removeDuplicates(arr) {
     return [...new Set(arr)];
