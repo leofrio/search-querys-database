@@ -100,6 +100,10 @@ function validatingText() {
             console.log('joinOn array'); 
             console.log(joinOnPart); 
         }
+    } 
+    if(whereClause) { 
+        let wherePart=[] 
+
     }  
     return true
     
