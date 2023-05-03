@@ -86,16 +86,22 @@ function validatingText() {
         let joinOnPart=[]  
         let currentJoinOnClause= joinOnClause  
         let currentJoinClause=joinClause
-        let joinObject=joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart) 
-        joinPart=joinObject.joinPart
-        joinOnPart=joinObject.joinOnPart
-        joinPart=joinPart.filter((e,i) => { return joinPart.indexOf(e) === i})
-        joinOnPart=joinOnPart.filter((element,index) => { return  joinOnPart.indexOf(element) === index}) 
-        console.log('join array'); 
-        console.log(joinPart); 
-        console.log('joinOn array'); 
-        console.log(joinOnPart);
-    } 
+        let joinObject=joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart)  
+        if(!joinObject) {
+            alert('query invalida')
+        } 
+        else {
+            joinPart=joinObject.joinPart
+            joinOnPart=joinObject.joinOnPart
+            joinPart=joinPart.filter((e,i) => { return joinPart.indexOf(e) === i})
+            joinOnPart=joinOnPart.filter((element,index) => { return  joinOnPart.indexOf(element) === index}) 
+            console.log('join array'); 
+            console.log(joinPart); 
+            console.log('joinOn array'); 
+            console.log(joinOnPart); 
+        }
+    }  
+    return true
     
 } 
 function removeDuplicates(arr) {
