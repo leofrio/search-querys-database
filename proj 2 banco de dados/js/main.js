@@ -23,8 +23,12 @@ $('#mainInput').on('input', function () {
     }
 })
 function upper() {
-    $("#validated-message").hide()
-    $('#mainInput').val($('#mainInput').val().toUpperCase())
+    $("#validated-message").hide();
+    const input = $('#mainInput')[0];
+    const oldPosition = input.selectionStart;
+    $('#mainInput').val($('#mainInput').val().toUpperCase());
+    input.selectionStart = oldPosition;
+    input.selectionEnd = oldPosition;
 }
 function changingInput(value) {
     $('#mainInput').val( $('#mainInput').val().trim())
@@ -49,25 +53,25 @@ function validation() {
         $("#validated-message").show()
         alert('deu bom!')
     }
-    console.log('select')
+    console.log('globalSelect')
     console.log(globalselectPart)
-    console.log('from')
+    console.log('globalFrom')
     console.log(globalFromPart)
-    console.log('join')
+    console.log('globalJoin')
     console.log(globalJoinPart);
-    console.log('joinOn')
+    console.log('globalJoinOn')
     console.log(globalJoinOnPart);
-    console.log('where')
+    console.log('globalWhere')
     console.log(globalWherePart);
 
 }
 function validatingText() {
     let userInput=$('#mainInput').val().trim().toUpperCase()
-    const regex =/^SELECT\s+(.+?)\s+FROM\s+(.+?)(\s+JOIN\s+(.+?)\s+ON\s+(.+?))?\s*(?:WHERE\s+(.+?))?$/i
+    const regex =/^SELECT\s+(.+?)\s+FROM\s+(.+?)(\s+JOIN\s+(.+?)\s+ON\s+(.+?))?\s*(?:WHERE\s+(.+?))?\s?([;])?$/i
     const match = userInput.match(regex);
     if (!match) {
         return false
-    }
+    } 
     const selectClause = match[1];
     const fromClause = match[2];
     const joinClause = match[4];
@@ -128,8 +132,15 @@ function validatingText() {
         }
     }
     if(whereClause) {
-        let wherePart=[]
-
+        let wherepart=[] 
+        let currentWhereClause=whereClause
+        whereTest=whereCheck(currentWhereClause,wherepart)  
+        if(!whereTest) {
+            return false
+        } 
+        console.log('where part:'); 
+        console.log(wherepart); 
+        globalWherePart=wherepart
     }
     return true
 
@@ -144,7 +155,7 @@ function joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart) {
         if(aux !==  -1) {
             let joinOn=currentJoinOnClause.slice(0,aux)
             let currentjoinOnPart=joinOn.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$|IN$|NOT$)([a-zA-Z]+[\w.]*)\s*(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w.]*)$/gi)
-            if(!currentjoinOnPart || currentjoinOnPart.length >1) {
+            if(!currentjoinOnPart || currentjoinOnPart.length >2) {
                 return undefined
             }
             joinOnPart.push(currentjoinOnPart[0])
@@ -181,4 +192,28 @@ function joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart) {
                 joinOnPart:joinOnPart
             }
         }
+} 
+function whereCheck(currentWhereClause,wherePart) {
+    let aux=currentWhereClause.trim().toUpperCase().indexOf('AND')
+    if(aux !== -1) {  
+        let originalWhere=currentWhereClause
+        currentWhereClause=originalWhere.slice(0,aux).trim().toUpperCase()
+        currentWhereClause=currentWhereClause.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}\w*[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi) 
+        if(!currentWhereClause) {
+            return undefined
+        } 
+        console.log(currentWhereClause)  
+        wherePart.push(currentWhereClause); 
+        let nextWhereClause=originalWhere.slice(aux,originalWhere.length).replace('AND','').trim().toUpperCase() 
+        wherePart=whereCheck(nextWhereClause,wherePart); 
+        return wherePart;
+    }else { 
+        currentWhereClause=currentWhereClause.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}\w*[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi) 
+        if(!currentWhereClause) {
+            return undefined
+        } 
+        console.log(currentWhereClause)  
+        wherePart.push(currentWhereClause); 
+        return wherePart;
+    }
 }
