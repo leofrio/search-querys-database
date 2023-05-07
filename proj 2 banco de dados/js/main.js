@@ -84,14 +84,14 @@ function validatingText() {
     console.log('where')
     console.log(whereClause)
     console.log('selectclauseregex');
-    const selectRegex=/^(\*|\b(?!(?:FROM|SELECT|JOIN|ON|AND|WHERE|IN|NOT)\b)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?(?:,[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?)*?)$/gi
+    const selectRegex=/^\s*(\*|\b(?!(?:FROM|SELECT|JOIN|ON|AND|WHERE|IN|NOT)\b)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?(?:,\s*[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?)*?)\s*$/gi
     const selectPart=selectClause.match(selectRegex)
-    console.log(selectPart[0]);
     if(!selectPart) {
         return false
     }
+    console.log(selectPart[0]);
     globalselectPart=selectPart[0]
-    const fromRegex=/^(?!FROM$|SELECT$|JOIN$|ON$|AND$|WHERE$|IN$|NOT$)(?!.*[^-_a-zA-Z0-9]).*[a-zA-Z][-_a-zA-Z0-9]*$/gi
+    const fromRegex=/^(?!\d)\s?(?!FROM$|SELECT$|JOIN$|ON$|AND$|WHERE$|IN$|NOT$)(?!.*[^-_a-zA-Z0-9\s]).*[a-zA-Z][-_a-zA-Z0-9]*$/gi
     const fromPart=fromClause.match(fromRegex)
     if(!fromPart) {
         return false
@@ -102,7 +102,7 @@ function validatingText() {
         if(!joinOnClause) {
             return false
         }
-        if(!joinClause.match(/^(?!FROM$|SELECT$|JOIN$|ON$|AND$|WHERE$|IN$|NOT$)(?!.*[^-_a-zA-Z0-9]).*[a-zA-Z][-_a-zA-Z0-9]*$/gi)) {
+        if(!joinClause.match(/^(?!\d)\s?(?!FROM$|SELECT$|JOIN$|ON$|AND$|WHERE$|IN$|NOT$)(?!.*[^-_a-zA-Z0-9\s]).*[a-zA-Z][-_a-zA-Z0-9]*$/gi)) {
             return false
         }
         let joinPart=[]
