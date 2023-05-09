@@ -52,6 +52,7 @@ function validation() {
         $("#validated-message").html('valida')
         $("#validated-message").show()
         alert('deu bom!')
+        return juncao();
     }
     console.log('globalSelect')
     console.log(globalselectPart)
@@ -71,7 +72,7 @@ function validatingText() {
     const match = userInput.match(regex);
     if (!match) {
         return false
-    } 
+    }
     const selectClause = match[1];
     const fromClause = match[2];
     const joinClause = match[4];
@@ -132,14 +133,14 @@ function validatingText() {
         }
     }
     if(whereClause) {
-        let wherepart=[] 
+        let wherepart=[]
         let currentWhereClause=whereClause
-        whereTest=whereCheck(currentWhereClause,wherepart)  
+        whereTest=whereCheck(currentWhereClause,wherepart)
         if(!whereTest) {
             return false
-        } 
-        console.log('where part:'); 
-        console.log(wherepart); 
+        }
+        console.log('where part:');
+        console.log(wherepart);
         globalWherePart=wherepart
     }
     return true
@@ -192,28 +193,55 @@ function joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart) {
                 joinOnPart:joinOnPart
             }
         }
-} 
+}
 function whereCheck(currentWhereClause,wherePart) {
     let aux=currentWhereClause.trim().toUpperCase().indexOf('AND')
-    if(aux !== -1) {  
+    if(aux !== -1) {
         let originalWhere=currentWhereClause
         currentWhereClause=originalWhere.slice(0,aux).trim().toUpperCase()
-        currentWhereClause=currentWhereClause.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}\w*[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi) 
+        currentWhereClause=currentWhereClause.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}\w*[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi)
         if(!currentWhereClause) {
             return undefined
-        } 
-        console.log(currentWhereClause)  
-        wherePart.push(currentWhereClause); 
-        let nextWhereClause=originalWhere.slice(aux,originalWhere.length).replace('AND','').trim().toUpperCase() 
-        wherePart=whereCheck(nextWhereClause,wherePart); 
+        }
+        console.log(currentWhereClause)
+        wherePart.push(currentWhereClause);
+        let nextWhereClause=originalWhere.slice(aux,originalWhere.length).replace('AND','').trim().toUpperCase()
+        wherePart=whereCheck(nextWhereClause,wherePart);
         return wherePart;
-    }else { 
-        currentWhereClause=currentWhereClause.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}\w*[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi) 
+    }else {
+        currentWhereClause=currentWhereClause.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}\w*[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi)
         if(!currentWhereClause) {
             return undefined
-        } 
-        console.log(currentWhereClause)  
-        wherePart.push(currentWhereClause); 
+        }
+        console.log(currentWhereClause)
+        wherePart.push(currentWhereClause);
         return wherePart;
     }
+}
+
+function juncao() {
+    if (globalJoinPart === undefined) {
+        let resultado_juncao = `PI ${globalselectPart} (SIGMA ${globalWherePart.join(' ^ ')} (${globalFromPart}))`
+        // console.log(resultado_juncao);
+        return reducao_tuplas(resultado_juncao);
+    }
+    let jun = '';
+    for (var i = 0; i < globalJoinPart.length; i++) {
+        if (i == 0) {
+            jun += `(${globalFromPart} |x| ${globalJoinOnPart[i]} ${globalJoinPart[i]})`;
+        } else {
+            jun = jun.replace(/^/, '(')
+            jun += ` |x| ${globalJoinOnPart[i]} ${globalJoinPart[i]})`
+        }
+    }
+    return reducao_tuplas(`PI ${globalselectPart} (SIGMA ${globalWherePart.join(' ^ ')} ${jun})`);
+
+}
+// SELECT TAB1.NOME, TAB2.SOBRENOME FROM TAB1 JOIN TAB2 ON TAB1.ID = TAB2.ID JOIN TAB3 ON TAB2.AB = TAB3.CD WHERE TAB1.ID > 3
+function reducao_tuplas(juncao) {
+    console.log(juncao)
+}
+
+function reducao_campos() {
+
 }
