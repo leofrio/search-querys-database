@@ -73,30 +73,45 @@ function validatingText() {
     if (!match) {
         return false
     }
-    const selectClause = match[1];
-    const fromClause = match[2];
-    const joinClause = match[4];
-    const joinOnClause = match[5];
-    const whereClause = match[6];
+    let selectClause = match[1];
+    let fromClause = match[2];
+    let joinClause = match[4];
+    let joinOnClause = match[5];
+    let whereClause = match[6];
     console.log('select:');
+    console.log(selectClause); 
+    console.log('depois da removeracentos:'); 
+    selectClause=tirarAcento(selectClause) 
     console.log(selectClause);
     console.log('from');
-    console.log(fromClause);
+    console.log(fromClause); 
+    console.log('depois da removeracentos:'); 
+    fromClause=tirarAcento(fromClause) 
+    console.log(fromClause); 
     console.log('join')
+    console.log(joinClause)
+    console.log('depois da removeracentos:'); 
+    joinClause=tirarAcento(joinClause) 
     console.log(joinClause)
     console.log('joinon')
     console.log(joinOnClause)
+    console.log('depois da removeracentos:'); 
+    joinOnClause=tirarAcento(joinOnClause) 
+    console.log(joinOnClause)
     console.log('where')
     console.log(whereClause)
-    console.log('selectclauseregex');
-    const selectRegex=/^\s*(\*|\b(?!(?:FROM|SELECT|JOIN|ON|AND|WHERE|IN|NOT)\b)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?(?:,\s*[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?)*?)\s*$/gi
+    console.log('depois da removeracentos:'); 
+    whereClause=tirarAcento(whereClause)  
+    console.log(whereClause)
+    console.log('----------------------------------');
+    const selectRegex=/^\s*(\*|\b(?!(?:FROM|SELECT|JOIN|ON|AND|WHERE|IN|NOT)\b)[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)?(?:,\s*[a-zA-Z0-9_-]+\s*(?:\.[a-zA-Z0-9_-]+)?)*?)\s*$/gi
     const selectPart=selectClause.match(selectRegex)
     if(!selectPart) {
         return false
     }
     console.log(selectPart[0]);
     globalselectPart=selectPart[0]
-    const fromRegex=/^(?!\d)\s?(?!FROM$|SELECT$|JOIN$|ON$|AND$|WHERE$|IN$|NOT$)(?!.*[^-_a-zA-Z0-9\s]).*[a-zA-Z][-_a-zA-Z0-9]*$/gi
+    const fromRegex=/^(?!\d)\s?(?!FROM|SELECT|JOIN|ON|AND|WHERE|IN|NOT)(?!.*[^-_a-zA-Z0-9\s]).*[a-zA-Z][-_a-zA-Z0-9]*$/gi
     const fromPart=fromClause.match(fromRegex)
     if(!fromPart) {
         return false
@@ -107,7 +122,7 @@ function validatingText() {
         if(!joinOnClause) {
             return false
         }
-        if(!joinClause.match(/^(?!\d)\s?(?!FROM$|SELECT$|JOIN$|ON$|AND$|WHERE$|IN$|NOT$)(?!.*[^-_a-zA-Z0-9\s]).*[a-zA-Z][-_a-zA-Z0-9]*$/gi)) {
+        if(!joinClause.match(/^(?!\d)\s?(?!FROM|SELECT|JOIN|ON|AND|WHERE|IN|NOT)(?!.*[^-_a-zA-Z0-9\s]).*[a-zA-Z][-_a-zA-Z0-9]*$/gi) || joinClause.split(' ').length >2) {
             return false
         }
         let joinPart=[]
@@ -135,7 +150,7 @@ function validatingText() {
     if(whereClause) {
         let wherepart=[]
         let currentWhereClause=whereClause
-        whereTest=whereCheck(currentWhereClause,wherepart)
+        let whereTest=whereCheck(currentWhereClause,wherepart)
         if(!whereTest) {
             return false
         }
@@ -149,13 +164,16 @@ function validatingText() {
 function removeDuplicates(arr) {
     return [...new Set(arr)];
 }
+function tirarAcento(string1) { 
+    return string1.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+}
 function joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart) {
         joinPart.push(currentJoinClause.trim().toUpperCase())
         let aux=currentJoinOnClause.trim().toUpperCase().indexOf(' JOIN ')
         let currentJoinOn;
         if(aux !==  -1) {
             let joinOn=currentJoinOnClause.slice(0,aux)
-            let currentjoinOnPart=joinOn.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$|IN$|NOT$)([a-zA-Z]+[\w.]*)\s*(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w.]*)$/gi)
+            let currentjoinOnPart=joinOn.match(/^(?!FROM|SELECT|JOIN|ON|AND|WHERE|IN|NOT)([a-zA-Z]+[\w.]*)\s*(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w.]*)$/gi)
             if(!currentjoinOnPart || currentjoinOnPart.length >2) {
                 return undefined
             }
@@ -183,8 +201,8 @@ function joinCheck(currentJoinClause,currentJoinOnClause,joinPart,joinOnPart) {
         }
         else {
             currentJoinOn=currentJoinOnClause
-            let currentjoinOnPart=currentJoinOn.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$|IN$|NOT$)([a-zA-Z]+[\w.]*)\s*(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w.]*)$/gi)
-            if(!currentjoinOnPart || currentjoinOnPart.length >1) {
+            let currentjoinOnPart=currentJoinOn.match(/^(?!FROM|SELECT|JOIN|ON|AND|WHERE|IN|NOT)([a-zA-Z]+[\w.]*)\s*(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w.]*)$/gi)
+            if(!currentjoinOnPart || currentjoinOnPart.length >2) {
                 return undefined
             }
             joinOnPart.push(currentjoinOnPart[0])
@@ -199,22 +217,22 @@ function whereCheck(currentWhereClause,wherePart) {
     if(aux !== -1) {
         let originalWhere=currentWhereClause
         currentWhereClause=originalWhere.slice(0,aux).trim().toUpperCase()
-        currentWhereClause=currentWhereClause.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}\w*[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi)
+        currentWhereClause=currentWhereClause.match(/^(?!FROM|SELECT|JOIN|ON|AND|WHERE)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|<=|>=|<>|>|<)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}(?:\w*\s*)+[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi)
         if(!currentWhereClause) {
             return undefined
         }
         console.log(currentWhereClause)
-        wherePart.push(currentWhereClause);
+        wherePart.push(currentWhereClause[0]);
         let nextWhereClause=originalWhere.slice(aux,originalWhere.length).replace('AND','').trim().toUpperCase()
         wherePart=whereCheck(nextWhereClause,wherePart);
         return wherePart;
     }else {
-        currentWhereClause=currentWhereClause.match(/^(?!FROM$|SELECT$|JOIN|ON$|AND$|WHERE$)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|>|<|<=|>=|<>)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}\w*[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi)
+        currentWhereClause=currentWhereClause.match(/^(?!FROM|SELECT|JOIN|ON|AND|WHERE)([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?)\s*(?:(=|<=|>=|<>|>|<)\s*([a-zA-Z]+[\w]*(?:[.]?[a-zA-Z]+[\w]*)?|\d+|(?:[']{1}(?:\w*\s*)+[']{1}){1})|\s*(IN|NOT\s*IN)\s*([(]{1}\s*(?:[']{1}\w*[']{1}|\d+){1}(?:(?:\s)*[,]{1}(?:\s)*(?:[']{1}\w*[']{1}|\d+){1})*\s*[)]{1}))$/gi)
         if(!currentWhereClause) {
             return undefined
         }
         console.log(currentWhereClause)
-        wherePart.push(currentWhereClause);
+        wherePart.push(currentWhereClause[0]);
         return wherePart;
     }
 }
