@@ -56,6 +56,16 @@
   -webkit-user-select: none;
   touch-action: manipulation;
   width: fit-content;
+} 
+#tree-area { 
+  display: flex;
+} 
+#tree-area button { 
+  display: block; 
+  width: 10% !important; 
+  height: 10%; 
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .button-26:disabled {

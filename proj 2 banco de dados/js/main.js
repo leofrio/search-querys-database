@@ -5,7 +5,8 @@ let globalselectPart = undefined
 let globalFromPart = undefined
 let globalJoinPart = undefined
 let globalJoinOnPart = undefined
-let globalWherePart = undefined
+let globalWherePart = undefined 
+let  globalAlgebraRelacional=''
 $('#mainInput').on('input', function () {
     let words = $(this).val().split(' ')
     let lastWord = words[words.length - 1].toUpperCase().trim()
@@ -46,7 +47,8 @@ function validation() {
         $("#validated-message").html('invalida')
         $("#validated-message").show()
         $('#algebraShowArea').hide()
-        alert('ESTA  QUERY ESTA INVALIDA')
+        alert('ESTA  QUERY ESTA INVALIDA') 
+        algebraRelacional=''
     }
     else {
         $("#validated-message").show()
@@ -55,7 +57,8 @@ function validation() {
         //alert('deu bom!')
         //juncao_e_reducao_tuplas();  
         algebraRelacional()
-        $('#algebraShowArea').show()
+        $('#algebraShowArea').show() 
+        $('#tree-area').show()
     }
     console.log('globalSelect')
     console.log(globalselectPart)
@@ -459,6 +462,35 @@ function algebraRelacional() {
                 aRelacional += ')'
             }
             $('#algebraRelacional').html(aRelacional)
-        }
+            
+        } 
+        globalAlgebraRelacional=aRelacional
     }
+} 
+function generateTree() {
+    // get a reference to the canvas element
+    const canvas = document.getElementById('canvas');
+    // the initial value must be enough to contain everything you want to draw
+    canvas.width = 2000;
+    canvas.height = 1000;
+    // get the canvas context
+    const ctx = canvas.getContext('2d');
+
+    // generate tree
+    const tree = new Tree();
+    tree.generate(globalAlgebraRelacional);
+
+    tree.draw(canvas);
+
+    // redraw to the desired size
+    const canvasImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    canvas.width = 2000;
+    canvas.height = 1000;
+    ctx.putImageData(canvasImage, 0, 0);
+
+
+    // Driver Code
+    let str = "14(2(3)(1))(6(5))";
+    let root = treeFromString(str, 0, str.length - 1);
+    preOrder(root);
 } 
