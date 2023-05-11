@@ -355,7 +355,7 @@ function RelationalAlgebra(){
         const valores = matches[2].split(",").map((valor) => valor.trim());
 
         linhasSelecionadas = linhasSelecionadas.filter((linha) =>
-          !valores.includes(linha[coluna])
+        !valores.includes(linha[coluna])
         );
       } else {
             const regex = /([^=<>]+)([=<>]+)(.*)/;
@@ -431,24 +431,25 @@ function RelationalAlgebra(){
 
     //Entrada
     if (globalselectPart == "*" && !where) {
-      console.log(tabelasSelecionadas);
+      resposta = tabelasSelecionadas;
       console.log(sqlToRelationalAlgebra($('#mainInput').val().trim().toUpperCase()));
 
     }else if (globalselectPart == "*" && where){
       const colunasSelecionadas = selecionarLinhas(tabelasSelecionadas, condicaoWhere, nomesCategorias);
-      console.log(colunasSelecionadas);
+      resposta = colunasSelecionadas;
       console.log(sqlToRelationalAlgebra($('#mainInput').val().trim().toUpperCase()));
 
     } else if (globalselectPart != "*" && !where){
       const colunasSelecionadas = selecionarColunas(tabelasSelecionadas, nomesCategorias);
-      console.log(colunasSelecionadas);
+      resposta = colunasSelecionadas;
       console.log(sqlToRelationalAlgebra($('#mainInput').val().trim().toUpperCase()));
 
     } else if (globalselectPart != "*" && where){
       const colunasSelecionadas = selecionarLinhas(tabelasSelecionadas, condicaoWhere, nomesCategorias);
-      console.log(colunasSelecionadas);
+      resposta = colunasSelecionadas;
       console.log(sqlToRelationalAlgebra($('#mainInput').val().trim().toUpperCase()));
     }
+    console.log(resposta)
   }
 };
 
