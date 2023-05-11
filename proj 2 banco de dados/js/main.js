@@ -52,7 +52,7 @@ function validation() {
         $("#validated-message").html('valida')
         $("#validated-message").show()
         alert('deu bom!')
-        return juncao();
+        return juncao_e_reducao_tuplas();
     }
     console.log('globalSelect')
     console.log(globalselectPart)
@@ -219,29 +219,66 @@ function whereCheck(currentWhereClause,wherePart) {
     }
 }
 
-function juncao() {
+function juncao_e_reducao_tuplas() {
     if (globalJoinPart === undefined) {
         let resultado_juncao = `PI ${globalselectPart} (SIGMA ${globalWherePart.join(' ^ ')} (${globalFromPart}))`
-        // console.log(resultado_juncao);
-        return reducao_tuplas(resultado_juncao);
+        return reducao_campos(resultado_juncao);
     }
+
     let jun = '';
     for (var i = 0; i < globalJoinPart.length; i++) {
         if (i == 0) {
-            jun += `(${globalFromPart} |x| ${globalJoinOnPart[i]} ${globalJoinPart[i]})`;
+            let replace_table_from = []
+            let replace_table_join = []
+            for (let j=0; j< globalWherePart.length; j++) {
+                let current_table = globalWherePart[j][0].split(' ')[0].split('.')[0]
+                if (current_table === globalFromPart) {
+                    replace_table_from.push(globalWherePart[j])
+                    delete globalWherePart[j]
+                } else if (current_table == globalJoinPart[i]) {
+                    replace_table_join.push(globalWherePart[j])
+                    delete globalWherePart[j]
+                }
+            }
+            let part_1
+            if (replace_table_from.length > 0) {
+                part_1 = `(SIGMA ${replace_table_from.join(' ^ ')} (${globalFromPart}))`
+            } else {
+                part_1 = globalFromPart
+            }
+            let part_2
+            if (replace_table_join.length > 0) {
+                part_2 = `(SIGMA ${replace_table_join.join(' ^ ')} (${globalJoinPart[i]}))`
+            } else {
+                part_2 = globalJoinPart[i]
+            }
+            jun += `(${part_1} |x| ${globalJoinOnPart[i]} ${part_2})`;
         } else {
+            let replace_table_join = []
+            for (let j=0; j< globalWherePart.length; j++) {
+                if (globalWherePart[j] === undefined ) { continue }
+                console.log(globalWherePart)
+                let current_table = globalWherePart[j][0].split(' ')[0].split('.')[0]
+                if (current_table === globalJoinPart[i]) {
+                    replace_table_join.push(globalWherePart[j])
+                    delete globalWherePart[j]
+                }
+            }
+            let part_3
+            if (replace_table_join.length > 0) {
+                part_3 = `(SIGMA ${replace_table_join.join(' ^ ')} (${globalJoinPart[i]}))`
+            } else {
+                part_3 = globalJoinPart[i]
+            }
             jun = jun.replace(/^/, '(')
-            jun += ` |x| ${globalJoinOnPart[i]} ${globalJoinPart[i]})`
+            jun += ` |x| ${globalJoinOnPart[i]} ${part_3})`
         }
     }
-    return reducao_tuplas(`PI ${globalselectPart} (SIGMA ${globalWherePart.join(' ^ ')} ${jun})`);
+    return reducao_campos(`PI ${globalselectPart} (${jun})`);
 
 }
-// SELECT TAB1.NOME, TAB2.SOBRENOME FROM TAB1 JOIN TAB2 ON TAB1.ID = TAB2.ID JOIN TAB3 ON TAB2.AB = TAB3.CD WHERE TAB1.ID > 3
-function reducao_tuplas(juncao) {
-    console.log(juncao)
-}
+// SELECT TAB1.NOME, TAB2.SOBRENOME FROM TAB1 JOIN TAB2 ON TAB1.ID = TAB2.ID JOIN TAB3 ON TAB2.AB = TAB3.CD WHERE TAB1.ID > 3 AND TAB1.NOME = 'JOSE' AND TAB2.QQ <> 4 AND TAB3.NAME = ''
 
-function reducao_campos() {
-
+function reducao_campos(current) {
+    console.log(current)
 }
