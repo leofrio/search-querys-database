@@ -45,14 +45,17 @@ function validation() {
         $("#validated-message").show()
         $("#validated-message").html('invalida')
         $("#validated-message").show()
+        $('#algebraShowArea').hide()
         alert('ESTA  QUERY ESTA INVALIDA')
     }
     else {
         $("#validated-message").show()
         $("#validated-message").html('valida')
         $("#validated-message").show()
-        alert('deu bom!')
-        return juncao_e_reducao_tuplas();
+        //alert('deu bom!')
+        //juncao_e_reducao_tuplas();  
+        algebraRelacional()
+        $('#algebraShowArea').show()
     }
     console.log('globalSelect')
     console.log(globalselectPart)
@@ -304,5 +307,158 @@ function juncao_e_reducao_tuplas() {
 // SELECT TAB1.NOME, TAB2.SOBRENOME FROM TAB1 JOIN TAB2 ON TAB1.ID = TAB2.ID JOIN TAB3 ON TAB2.AB = TAB3.CD WHERE TAB1.ID > 3 AND TAB1.NOME = 'JOSE' AND TAB2.QQ <> 4 AND TAB3.NAME = ''
 
 function reducao_campos(current) {
-    console.log(current)
+    $('#algebraRelacional').html(current)
 }
+
+function algebraRelacional() {
+    let aRelacional = ""
+    if (!globalWherePart && !globalJoinPart) {
+        if (globalselectPart === '*') {
+            aRelacional += `SIGMA(${globalFromPart.split(' ')[0]})`
+            $('#algebraRelacional').html(aRelacional)
+        }
+        else {
+            aRelacional = `PI ${globalselectPart} (${globalFromPart.split(' ')[0]})`
+            $('#algebraRelacional').html(aRelacional)
+        }
+    }
+    else {
+        let numberOfParenthesis = 0
+        if (!globalJoinPart) {
+            firstFrom = globalFromPart.trim().split(' ')[0]
+            secondFrom = globalFromPart.trim().split(' ').length > 1 ? globalFromPart.trim().split(' ')[1] : ''
+            aRelacional += 'SIGMA'
+            for (let whereExpression of globalWherePart) {
+                aRelacional += ' ' + whereExpression
+                aRelacional += globalWherePart.indexOf(whereExpression) !== globalWherePart.length - 1 ? ',' : ''
+            }
+            aRelacional += `(${globalFromPart.split(' ')[0]})`
+            $('#algebraRelacional').html(aRelacional)
+        } else {
+            let tablesToJoin = [globalFromPart].concat(globalJoinPart)
+            let tablesObject = {}
+            for (let table of tablesToJoin) {
+                tablesObject[`${table.split(' ')[0]}`] = {
+                    alias: table.split(' '),
+                    expressions: [],
+                    fieldsNeededForJoin: [],
+                    fieldsNeededForSelect: []
+                }
+            }
+            const signals = ['<>', '<=', '>=', 'NOT IN', 'IN', '=']
+            //getting the fields for where
+            for (let whereExpression of globalWherePart) {
+                let signalPos = -1
+                let signalLength = -1
+                for (signal of signals) {
+                    let aux = whereExpression.indexOf(signal)
+                    if (aux != -1) {
+                        signalPos = aux
+                        signalLength = signal.length
+                        break
+                    }
+                }
+                console.log(whereExpression)
+                let beforeSignal = whereExpression.slice(0, signalPos).trim()
+                let eSignal = whereExpression.slice(signalPos, signalPos + signalLength).trim()
+                let afterSignal = whereExpression.slice(signalPos + signalLength, whereExpression.length).trim()
+                for (let [key, table] of Object.entries(tablesObject)) {
+                    for (let alias of table.alias) {
+                        if (beforeSignal.indexOf(alias) != -1 || afterSignal.indexOf(alias) != -1) {
+                            table.expressions.push(whereExpression)
+                            break
+                        }
+                    }
+                }
+            }
+            //getting the select fields 
+            if (globalselectPart.trim() === '*') {
+                for (let [key, table] of Object.entries(tablesObject)) {
+                    table.expressions = []
+                }
+            }
+            else {
+
+                //getting the fields to join
+                for (let joinExpression of globalJoinOnPart) {
+                    let signalPos = -1
+                    let signalLength = -1
+                    for (signal of signals) {
+                        let aux = joinExpression.indexOf(signal)
+                        if (aux != -1) {
+                            signalPos = aux
+                            signalLength = signal.length
+                            break
+                        }
+                    }
+                    console.log(joinExpression)
+                    let beforeSignal = joinExpression.slice(0, signalPos).trim()
+                    let eSignal = joinExpression.slice(signalPos, signalPos + signalLength).trim()
+                    let afterSignal = joinExpression.slice(signalPos + signalLength, joinExpression.length).trim()
+                    for (let [key, table] of Object.entries(tablesObject)) {
+                        for (let alias of table.alias) {
+                            if (beforeSignal.indexOf(alias) != -1) {
+                                table.fieldsNeededForJoin.push(beforeSignal)
+                                break
+                            }
+                            if (afterSignal.indexOf(alias) != -1) {
+                                table.fieldsNeededForJoin.push(afterSignal)
+                                break
+                            }
+                        }
+                    }
+                }
+                //getting select fields  
+                for (let field of globalselectPart.split(',')) {
+                    for (let [key, table] of Object.entries(tablesObject)) {
+                        for (let alias of table.alias) {
+                            if (field.indexOf(alias) != -1) {
+                                table.fieldsNeededForSelect.push(field)
+                                break
+                            }
+                        }
+                    }
+                }
+            }
+            //removing duplicates
+            for (let [key, table] of Object.entries(tablesObject)) {
+                table.expressions = removeDuplicates(table.expressions)
+                table.fieldsNeededForJoin = removeDuplicates(table.fieldsNeededForJoin)
+                table.fieldsNeededForSelect = removeDuplicates(table.fieldsNeededForSelect)
+            }
+            console.log('here!')
+            console.log(tablesObject);
+            if (globalselectPart.trim() === '*') {
+                aRelacional += 'SIGMA('
+            } else {
+                aRelacional += `PI ${globalselectPart}(`
+            }
+            numberOfParenthesis++
+            let joinPartsExpressions = []
+            for (let [key, table] of Object.entries(tablesObject)) {
+                let innerPart = 'SIGMA ' + table.expressions.join(' ^ ') + '(' + table.alias[0] + ')'
+                let outerPart = 'PI ' + removeDuplicates(table.fieldsNeededForJoin.concat(table.fieldsNeededForSelect)).join(',')
+                joinPartsExpressions.push(`(${outerPart}(${innerPart}))`)
+            }
+            let joinIndex = 0
+            for (let index = 0; index < joinPartsExpressions.length; index++) {
+                let item = joinPartsExpressions[index]
+                if(index ===0) {
+                aRelacional += item + '|X|' + globalJoinOnPart[joinIndex] 
+                } 
+                else {
+                    aRelacional +=  '|X|' + globalJoinOnPart[joinIndex] 
+                }
+                aRelacional += joinPartsExpressions[index + 1]
+                joinIndex++
+                if (joinIndex > globalJoinOnPart.length - 1) {
+                    break
+                }
+            }
+            for (let i = 0; i < numberOfParenthesis; i++) {
+                aRelacional += ')'
+            }
+            $('#algebraRelacional').html(aRelacional)
+        }
+    }
+} 
