@@ -130,32 +130,32 @@ class Tree {
         }
     }
 
-    draw(canvas, margin=100) {
+    draw(canvas, margin=140) {
         const ctx = canvas.getContext('2d');
         let currentCoord = {x: margin, y: margin};
         let lastCoord = {x: 0, y: 0}
-        const moveLeft = () => { 
+        const moveLeft = () => {
             currentCoord.x -= margin;
             // drawCircle(ctx, currentCoord.x, currentCoord.y, 5, 'red');
         };
-        const moveRight = () => { 
+        const moveRight = () => {
             currentCoord.x += margin;
             // drawCircle(ctx, currentCoord.x, currentCoord.y, 5, 'red');
         };
-        const moveUp = () => { 
+        const moveUp = () => {
             currentCoord.y -= margin;
             // drawCircle(ctx, currentCoord.x, currentCoord.y, 5, 'red');
         };
-        const moveDown = () => { 
+        const moveDown = () => {
             currentCoord.y += margin;
             // drawCircle(ctx, currentCoord.x, currentCoord.y, 5, 'red');
         };
         const drawNode = (n) => {
-            drawCircle(ctx, n.coord.x, n.coord.y, 30);
+            drawCircle(ctx, n.coord.x, n.coord.y, 70);
             drawText(ctx, n.coord.x, n.coord.y, n.value);
         }
         let parentStack = [];
-        
+
         const stack = [this.root];
         while (stack.length) {
             const node = stack.pop();
@@ -172,12 +172,12 @@ class Tree {
                     parentStack.pop();
                     drawLine(ctx, currentCoord.x, currentCoord.y, parentStack[parentStack.length-1].coord.x, parentStack[parentStack.length-1].coord.y);
                 }
-    
+
                 if (!parentStack.length) {
                     console.error("Traverse error");
                     return;
                 }
-    
+
                 lastCoord = {...currentCoord}
                 moveDown();
                 drawLine(ctx, lastCoord.x, lastCoord.y, currentCoord.x, currentCoord.y);
@@ -201,4 +201,3 @@ class Tree {
         }
     }
 }
-  

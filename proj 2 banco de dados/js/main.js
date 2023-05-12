@@ -5,7 +5,7 @@ let globalselectPart = undefined
 let globalFromPart = undefined
 let globalJoinPart = undefined
 let globalJoinOnPart = undefined
-let globalWherePart = undefined 
+let globalWherePart = undefined
 let  globalAlgebraRelacional=''
 $('#mainInput').on('input', function () {
     let words = $(this).val().split(' ')
@@ -41,19 +41,19 @@ function changingInput(value) {
     $('#mainInput').focus()
 }
 function validation() {
-    globalselectPart=undefined 
+    globalselectPart=undefined
     globalFromPart=undefined
     globalJoinPart=undefined
-    globalJoinOnPart=undefined 
-    globalWherePart=undefined 
+    globalJoinOnPart=undefined
+    globalWherePart=undefined
     globalAlgebraRelacional=''
-    let test = validatingText() 
+    let test = validatingText()
     if (!test) {
         $("#validated-message").show()
         $("#validated-message").html('invalida')
         $("#validated-message").show()
         $('#algebraShowArea').hide()
-        alert('ESTA  QUERY ESTA INVALIDA') 
+        alert('ESTA  QUERY ESTA INVALIDA')
         algebraRelacional=''
     }
     else {
@@ -61,9 +61,9 @@ function validation() {
         $("#validated-message").html('valida')
         $("#validated-message").show()
         //alert('deu bom!')
-        //juncao_e_reducao_tuplas();  
+        //juncao_e_reducao_tuplas();
         algebraRelacional()
-        $('#algebraShowArea').show() 
+        $('#algebraShowArea').show()
         $('#tree-area').show()
     }
     console.log('globalSelect')
@@ -341,8 +341,8 @@ function algebraRelacional() {
                 aRelacional += ' ' + whereExpression
                 aRelacional += globalWherePart.indexOf(whereExpression) !== globalWherePart.length - 1 ? ',' : ''
             }
-            aRelacional += `(${globalFromPart.split(' ')[0]})` 
-            if(globalselectPart !== '*') { 
+            aRelacional += `(${globalFromPart.split(' ')[0]})`
+            if(globalselectPart !== '*') {
                 aRelacional='PI ' + globalselectPart + '(' + aRelacional +')'
             }
             $('#algebraRelacional').html(aRelacional)
@@ -383,7 +383,7 @@ function algebraRelacional() {
                     }
                 }
             }
-            //getting the select fields 
+            //getting the select fields
             if (globalselectPart.trim() === '*') {
                 for (let [key, table] of Object.entries(tablesObject)) {
                     table.expressions = []
@@ -420,7 +420,7 @@ function algebraRelacional() {
                         }
                     }
                 }
-                //getting select fields  
+                //getting select fields
                 for (let field of globalselectPart.split(',')) {
                     for (let [key, table] of Object.entries(tablesObject)) {
                         for (let alias of table.alias) {
@@ -456,10 +456,10 @@ function algebraRelacional() {
             for (let index = 0; index < joinPartsExpressions.length; index++) {
                 let item = joinPartsExpressions[index]
                 if(index ===0) {
-                aRelacional += item + '|X|' + globalJoinOnPart[joinIndex] 
-                } 
+                aRelacional += item + '|X|' + globalJoinOnPart[joinIndex]
+                }
                 else {
-                    aRelacional +=  '|X|' + globalJoinOnPart[joinIndex] 
+                    aRelacional +=  '|X|' + globalJoinOnPart[joinIndex]
                 }
                 aRelacional += joinPartsExpressions[index + 1]
                 joinIndex++
@@ -471,11 +471,27 @@ function algebraRelacional() {
                 aRelacional += ')'
             }
             $('#algebraRelacional').html(aRelacional)
-            
-        } 
+
+            //SELECT TAB1.NOME,TAB2.IDADE FROM TAB1 JOIN TAB2 ON TAB1.ID=TAB2.ID WHERE TAB1.NOME='JOAO' AND TAB2.IDADE>30
+
+
+
+
+        }
+        aRelacional = `(${aRelacional})`
+        let tree = new Tree()
+        tree.generate(aRelacional)
+        console.log('AQUIIIIIIIII')
+        console.log(tree)
+        let canvas = document.getElementById('canvas')
+        canvas.width = 2000
+        canvas.height = 5000
+        console.log(canvas)
+        tree.draw(canvas)
         globalAlgebraRelacional=aRelacional
+
     }
-} 
+}
 function generateTree() {
     // get a reference to the canvas element
     const canvas = document.getElementById('canvas');
@@ -502,4 +518,4 @@ function generateTree() {
     let str = "14(2(3)(1))(6(5))";
     let root = treeFromString(str, 0, str.length - 1);
     preOrder(root);
-} 
+}

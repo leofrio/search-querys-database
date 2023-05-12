@@ -38,16 +38,17 @@
     <div class="submitButton">
         <button id="validateButton" class="button-26" onclick="validation()" role="button">Submit</button>
     </div>
-    <span id='validated-message'></span> 
-    <div id="algebraShowArea" style="display:flex;flex-direction:column">  
-        <h3>ALGEBRA RELACIONAL:</h3> 
+    <span id='validated-message'></span>
+    <div id="algebraShowArea" style="display:flex;flex-direction:column">
+        <h3>ALGEBRA RELACIONAL:</h3>
         <span id="algebraRelacional"></span>
-    </div> 
-    <div id="tree-area" style="display: none;"> 
-        <button class="button-26" onClick="generateTree">Generar Arvore</button>
-        <canvas id="canvas"></canvas> 
     </div>
-</div> 
+        <canvas id="canvas"></canvas>
+
+    <div id="tree-area" style="display: none;">
+        <button class="button-26" onClick="generateTree">Generar Arvore</button>
+    </div>
+</div>
 <style>
     canvas {
         border: 1px solid black;
@@ -55,6 +56,6 @@
 </style>
 <script src="js/main.js"></script>
 <script src="js/tree.js"></script>
-    <script src="js/btree.js"></script>
+<script src="js/btree.js"></script>
 </body>
 </html>
