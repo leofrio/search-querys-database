@@ -41,7 +41,13 @@ function changingInput(value) {
     $('#mainInput').focus()
 }
 function validation() {
-    let test = validatingText()
+    globalselectPart=undefined 
+    globalFromPart=undefined
+    globalJoinPart=undefined
+    globalJoinOnPart=undefined 
+    globalWherePart=undefined 
+    globalAlgebraRelacional=''
+    let test = validatingText() 
     if (!test) {
         $("#validated-message").show()
         $("#validated-message").html('invalida')
@@ -335,7 +341,10 @@ function algebraRelacional() {
                 aRelacional += ' ' + whereExpression
                 aRelacional += globalWherePart.indexOf(whereExpression) !== globalWherePart.length - 1 ? ',' : ''
             }
-            aRelacional += `(${globalFromPart.split(' ')[0]})`
+            aRelacional += `(${globalFromPart.split(' ')[0]})` 
+            if(globalselectPart !== '*') { 
+                aRelacional='PI ' + globalselectPart + '(' + aRelacional +')'
+            }
             $('#algebraRelacional').html(aRelacional)
         } else {
             let tablesToJoin = [globalFromPart].concat(globalJoinPart)
